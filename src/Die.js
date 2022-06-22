@@ -4,7 +4,10 @@ export default function Die(props) {
     }
     return (
         <li onClick={props.holdDice}>
-            <button className="dice__btn" style={styles}>{props.value}</button>
+            <button className="dice__btn" style={styles}>
+                {props.value}               
+                {props.isHeld && <span className="sr-only">is held</span>}
+            </button>
         </li>
     )
 }

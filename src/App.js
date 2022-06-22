@@ -2,10 +2,12 @@ import React from "react";
 import Die from "./Die";
 import { nanoid } from "nanoid";
 import Confetti from "react-confetti";
+import Announcer from 'react-a11y-announcer';
 
 export default function App() {
   const [dice, setDice] = React.useState(allNewDice());
   const [tenzies, setTenzies] = React.useState(false);
+  const [announcement, setAnnouncement] = React.useState("")
 
   React.useEffect(() => {
     const allHeld = dice.every((die) => die.isHeld);
@@ -13,8 +15,14 @@ export default function App() {
     const allSameValue = dice.every((die) => die.value === firstValue);
     if (allHeld && allSameValue) {
       setTenzies(true);
+      setAnnouncement("Congratulations! You won")
     }
   }, [dice]);
+
+  // resets the announcer so it doesn't keep announcing the same everytime the app rerenders
+  React.useEffect(() => {
+    setAnnouncement("")
+  }, [announcement])
 
   function generateNewDie() {
     return {
@@ -33,6 +41,10 @@ export default function App() {
   }
 
   function rollDice() {
+    // anounces to the screen reader how many dice were rerolled
+    const rerolled = 10 - dice.filter(die => die.isHeld).length
+    setAnnouncement(`Rerolled ${rerolled} dice`)
+
     if (!tenzies) {
       setDice((oldDice) =>
         oldDice.map((die) => {
@@ -40,6 +52,7 @@ export default function App() {
         })
       );
     } else {
+      setAnnouncement("New game")
       setTenzies(false);
       setDice(allNewDice());
     }
@@ -65,6 +78,7 @@ export default function App() {
   return (
     <section className="app-container">
       {tenzies && <Confetti />}
+      <Announcer text={announcement} />
       <h1>Tenzies</h1>
       <p>
         Roll until all dice are the same. Click each die to freeze it at its
